@@ -1,14 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import TrafficLight from "./TrafficLight";
+import AddLightButton from "./AddLightButton";
 
-// create your first component
 const Home = () => {
+  const [colors, setColors] = useState(["green", "orange", "red"]);
   const [selectedColor, setSelectedColor] = useState("green");
+  const [isAutoCycling, setIsAutoCycling] = useState(false);
+
+  useEffect(() => {
+    let intervalId;
+
+    if (isAutoCycling) {
+      intervalId = setInterval(() => {
+        const currentIndex = colors.indexOf(selectedColor);
+        const nextIndex = (currentIndex + 1) % colors.length;
+        setSelectedColor(colors[nextIndex]);
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [isAutoCycling, selectedColor, colors]);
+
+  const toggleAutoCycle = () => {
+    setIsAutoCycling(!isAutoCycling);
+  };
+
+  const addLight = (color) => {
+    setColors([...colors, color]);
+  };
 
   return (
-    <div className="trafficBox">
-      <div onClick={() => setSelectedColor("red")} className={"light red" + (selectedColor === "red" ? " glow" : "")}></div>
-      <div onClick={() => setSelectedColor("yellow")} className={"light yellow" + (selectedColor === "yellow" ? " glow" : "")}></div>
-      <div onClick={() => setSelectedColor("green")} className={"light green" + (selectedColor === "green" ? " glow" : "")}></div>
+    <div>
+      <TrafficLight colors={colors} selectedColor={selectedColor} setSelectedColor={setSelectedColor} />
+      <AddLightButton addLight={addLight} />
+
+      <button className="cycleButton" onClick={toggleAutoCycle}>
+        {isAutoCycling ? "Stop Automatic Cycle" : "Start Automatic Cycle"}
+      </button>
     </div>
   );
 };
